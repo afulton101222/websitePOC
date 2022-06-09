@@ -1,0 +1,47 @@
+.cardContainer {
+  margin-bottom: 2rem;
+  width: auto;
+  transition: max-width 0.4s;
+  transition-timing-function: cubic-bezier(0.83, 0, 0.17, 1);
+  
+  &:hover {
+    max-width: 100vw !important;
+
+    .card {
+      border-radius: 0;
+    }
+  }
+}
+
+.card {
+  display: flex;
+  min-height: 30vh;
+  position: relative;
+  overflow: hidden;
+  cursor: pointer;
+}
+
+.cardBackground {
+  &:after {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    height: 100%;
+    width: 100%;
+    background-color: black;
+    opacity: 0.6;
+  }
+}
+
+.cardContent {
+  z-index: 100;
+  min-height: 100%;
+  width: 100%;
+  color: white;
+  padding: 0 2rem;
+
+  p {
+    max-width: 30rem;
+  }
+}

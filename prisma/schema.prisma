@@ -1,0 +1,84 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model Picture {
+  id         Int      @id @default(autoincrement())
+  userId     Int
+  serverId   Int
+  path       String
+  createdAt  DateTime @default(now()) @db.Timestamp(6)
+  width      Int
+  height     Int
+  isApproved Boolean  @default(false)
+  caption    String   @default("")
+  server     Server   @relation(fields: [serverId], references: [id])
+  user       User     @relation(fields: [userId], references: [id])
+}
+
+model Server {
+  id                Int                     @id @default(autoincrement())
+  name              String                  @db.VarChar(255)
+  domain            String                  @db.VarChar(255)
+  description       String
+  createdAt         DateTime                @default(now()) @db.Timestamp(6)
+  limitToMembers    Boolean                 @default(true)
+  isArchived        Boolean                 @default(false)
+  archiveFileUrl    String?
+  pictures          Picture[]
+  connectionHistory UserConnectionHistory[]
+}
+
+model User {
+  id                Int       @id @default(autoincrement())
+  email             String?   @unique
+  createdAt         DateTime  @default(now()) @db.Timestamp(6)
+  isOfficer         Boolean   @default(false)
+  isBanned          Boolean   @default(false)
+  banMessage        String?
+  minecraftUsername String    @default("")
+  minecraftUUID     String    @default("")
+  isMember          Boolean   @default(false)
+  lastLoggedInAt    DateTime? @default(now())
+
+  sponsoredByUserId Int?
+  sponsoredBy       User?  @relation("sponsor", fields: [sponsoredByUserId], references: [id])
+  sponsoring        User[] @relation("sponsor")
+
+  pictures          Picture[]
+  connectionHistory UserConnectionHistory[]
+}
+
+enum ConnectionEvent {
+  CONNECTED
+  DISCONNECTED
+  DENIED
+}
+
+model UserConnectionHistory {
+  id        String          @id @default(cuid())
+  userId    Int
+  serverId  Int
+  user      User            @relation(fields: [userId], references: [id], onDelete: Cascade)
+  server    Server          @relation(fields: [serverId], references: [id], onDelete: Cascade)
+  event     ConnectionEvent
+  createdAt DateTime        @default(now())
+}
+
+model WhitelistToken {
+  id            Int      @id @default(autoincrement())
+  code          String   @default("")
+  minecraftUUID String   @default("")
+  createdAt     DateTime @default(now())
+}
+
+model AuthToken {
+  token      String   @id
+  name       String   @default("")
+  lastUsedAt DateTime @default(now())
+}
